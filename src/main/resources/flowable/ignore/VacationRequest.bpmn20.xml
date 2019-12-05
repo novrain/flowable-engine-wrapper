@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+	xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:flowable="http://flowable.org/bpmn"
+	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+	xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+	xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+	typeLanguage="http://www.w3.org/2001/XMLSchema"
+	expressionLanguage="http://www.w3.org/1999/XPath"
+	targetNamespace="http://activiti.org/bpmn20">
+	<process id="vacationRequest" name="请假流程" isExecutable="true">
+		<startEvent id="request" name="发起请假申请"
+			flowable:formFieldValidation="true"></startEvent>
+		<sequenceFlow id="flow1" sourceRef="request"
+			targetRef="handleRequest"></sequenceFlow>
+		<userTask id="handleRequest" name="请假申请审核"
+			flowable:assignee="u:leader:某科长"
+			flowable:candidateUsers="u:manager:王经理,u:hrbp:某HR"
+			flowable:candidateGroups="r:management:经理角色,p:management:经理职位,o:management:管理小组"
+			flowable:formFieldValidation="true"></userTask>
+		<sequenceFlow id="flow2" sourceRef="handleRequest"
+			targetRef="requestApprovedDecision"></sequenceFlow>
+		<exclusiveGateway id="requestApprovedDecision"
+			name="待审核"></exclusiveGateway>
+		<sequenceFlow id="flow3"
+			sourceRef="requestApprovedDecision" targetRef="sendApprovalMail">
+			<conditionExpression xsi:type="tFormalExpression"><![CDATA[${vacationApproved == 'true'}]]></conditionExpression>
+		</sequenceFlow>
+		<manualTask id="sendApprovalMail" name="邮件通知"></manualTask>
+		<sequenceFlow id="flow4" sourceRef="sendApprovalMail"
+			targetRef="theEnd"></sequenceFlow>
+		<endEvent id="theEnd"></endEvent>
+		<sequenceFlow id="flow5"
+			sourceRef="requestApprovedDecision"
+			targetRef="adjustVacationRequestTask">
+			<conditionExpression xsi:type="tFormalExpression"><![CDATA[${vacationApproved == 'false'}]]></conditionExpression>
+		</sequenceFlow>
+		<userTask id="adjustVacationRequestTask" name="重新填写"
+			flowable:assignee="${initiatorUser}"
+			flowable:formFieldValidation="true">
+			<extensionElements>
+				<modeler:initiator-can-complete
+					xmlns:modeler="http://flowable.org/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+			</extensionElements>
+		</userTask>
+		<sequenceFlow id="flow6"
+			sourceRef="adjustVacationRequestTask"
+			targetRef="resendRequestDecision"></sequenceFlow>
+		<exclusiveGateway id="resendRequestDecision"
+			name="重新提交?"></exclusiveGateway>
+		<sequenceFlow id="flow7"
+			sourceRef="resendRequestDecision" targetRef="handleRequest">
+			<conditionExpression xsi:type="tFormalExpression"><![CDATA[${resendRequest == 'true'}]]></conditionExpression>
+		</sequenceFlow>
+		<sequenceFlow id="flow8"
+			sourceRef="resendRequestDecision" targetRef="theCancel">
+			<conditionExpression xsi:type="tFormalExpression"><![CDATA[${resendRequest == 'false'}]]></conditionExpression>
+		</sequenceFlow>
+		<endEvent id="theCancel"></endEvent>
+	</process>
+	<bpmndi:BPMNDiagram id="BPMNDiagram_vacationRequest">
+		<bpmndi:BPMNPlane bpmnElement="vacationRequest"
+			id="BPMNPlane_vacationRequest">
+			<bpmndi:BPMNShape bpmnElement="request"
+				id="BPMNShape_request">
+				<omgdc:Bounds height="30.0" width="30.0" x="165.0"
+					y="220.0"></omgdc:Bounds>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape bpmnElement="handleRequest"
+				id="BPMNShape_handleRequest">
+				<omgdc:Bounds height="60.0" width="100.0" x="243.0"
+					y="205.0"></omgdc:Bounds>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape
+				bpmnElement="requestApprovedDecision"
+				id="BPMNShape_requestApprovedDecision">
+				<omgdc:Bounds height="40.0" width="40.0" x="393.0"
+					y="159.0"></omgdc:Bounds>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape bpmnElement="sendApprovalMail"
+				id="BPMNShape_sendApprovalMail">
+				<omgdc:Bounds height="60.0" width="100.0" x="483.0"
+					y="45.0"></omgdc:Bounds>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape bpmnElement="theEnd"
+				id="BPMNShape_theEnd">
+				<omgdc:Bounds height="28.0" width="28.0" x="638.0"
+					y="60.0"></omgdc:Bounds>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape
+				bpmnElement="adjustVacationRequestTask"
+				id="BPMNShape_adjustVacationRequestTask">
+				<omgdc:Bounds height="60.0" width="100.0" x="483.0"
+					y="205.0"></omgdc:Bounds>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape
+				bpmnElement="resendRequestDecision"
+				id="BPMNShape_resendRequestDecision">
+				<omgdc:Bounds height="40.0" width="40.0" x="523.0"
+					y="375.0"></omgdc:Bounds>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape bpmnElement="theCancel"
+				id="BPMNShape_theCancel">
+				<omgdc:Bounds height="28.0" width="28.0" x="723.0"
+					y="283.0"></omgdc:Bounds>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNEdge bpmnElement="flow1"
+				id="BPMNEdge_flow1">
+				<omgdi:waypoint x="194.9499985690373" y="235.0"></omgdi:waypoint>
+				<omgdi:waypoint x="242.99999999997235" y="235.0"></omgdi:waypoint>
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNEdge bpmnElement="flow2"
+				id="BPMNEdge_flow2">
+				<omgdi:waypoint x="342.9499999999999"
+					y="226.93548387096777"></omgdi:waypoint>
+				<omgdi:waypoint x="355.0" y="225.0"></omgdi:waypoint>
+				<omgdi:waypoint x="355.0" y="179.0"></omgdi:waypoint>
+				<omgdi:waypoint x="393.0" y="179.0"></omgdi:waypoint>
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNEdge bpmnElement="flow3"
+				id="BPMNEdge_flow3">
+				<omgdi:waypoint x="432.91892523364453" y="179.0"></omgdi:waypoint>
+				<omgdi:waypoint x="445.0" y="179.0"></omgdi:waypoint>
+				<omgdi:waypoint x="445.0" y="75.0"></omgdi:waypoint>
+				<omgdi:waypoint x="482.9999999999877" y="75.0"></omgdi:waypoint>
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNEdge bpmnElement="flow4"
+				id="BPMNEdge_flow4">
+				<omgdi:waypoint x="582.95" y="75.0"></omgdi:waypoint>
+				<omgdi:waypoint x="595.0" y="75.0"></omgdi:waypoint>
+				<omgdi:waypoint x="595.0" y="75.0"></omgdi:waypoint>
+				<omgdi:waypoint x="638.0021085173267"
+					y="74.24469997080382"></omgdi:waypoint>
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNEdge bpmnElement="flow5"
+				id="BPMNEdge_flow5">
+				<omgdi:waypoint x="432.91892523364453" y="179.0"></omgdi:waypoint>
+				<omgdi:waypoint x="445.0" y="179.0"></omgdi:waypoint>
+				<omgdi:waypoint x="445.0" y="235.0"></omgdi:waypoint>
+				<omgdi:waypoint x="483.0" y="235.0"></omgdi:waypoint>
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNEdge bpmnElement="flow6"
+				id="BPMNEdge_flow6">
+				<omgdi:waypoint x="582.9499999999838" y="235.0"></omgdi:waypoint>
+				<omgdi:waypoint x="595.0" y="235.0"></omgdi:waypoint>
+				<omgdi:waypoint x="595.0" y="298.0"></omgdi:waypoint>
+				<omgdi:waypoint x="549.9624161073825"
+					y="381.97986577181206"></omgdi:waypoint>
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNEdge bpmnElement="flow7"
+				id="BPMNEdge_flow7">
+				<omgdi:waypoint x="528.5187231430325"
+					y="389.47852760736197"></omgdi:waypoint>
+				<omgdi:waypoint x="425.0" y="350.0"></omgdi:waypoint>
+				<omgdi:waypoint x="409.0" y="298.0"></omgdi:waypoint>
+				<omgdi:waypoint x="342.95000000000005"
+					y="262.1280172413794"></omgdi:waypoint>
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNEdge bpmnElement="flow8"
+				id="BPMNEdge_flow8">
+				<omgdi:waypoint x="556.2544520547945"
+					y="388.28767123287673"></omgdi:waypoint>
+				<omgdi:waypoint x="724.501197396662"
+					y="303.29127873317793"></omgdi:waypoint>
+			</bpmndi:BPMNEdge>
+		</bpmndi:BPMNPlane>
+	</bpmndi:BPMNDiagram>
+</definitions>

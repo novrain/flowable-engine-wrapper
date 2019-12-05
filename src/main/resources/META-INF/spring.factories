@@ -1,0 +1,4 @@
+# Iota Engine auto-configurations
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    cn.iota.rest.config.IotaRestApiAutoConfigration
