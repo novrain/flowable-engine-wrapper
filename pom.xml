@@ -20,6 +20,23 @@
 		<flowable.version>6.4.2.13</flowable.version>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>internal</id>
+			<url>http://build.chuanyang100.com:8180/repository/internal/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>snapshots</id>
+			<url>http://build.chuanyang100.com:8180/repository/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -84,6 +101,9 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<classifier>exec</classifier>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
