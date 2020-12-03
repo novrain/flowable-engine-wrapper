@@ -347,6 +347,15 @@ public class FlowableRestApiInterceptor implements BpmnRestApiInterceptor {
                 addVariables(historicProcessInstanceQuery, orVariables);
                 historicProcessInstanceQuery.endOr();
             }
+
+            List<List<QueryVariable>> nestOrVariables = ((HistoricProcessInstanceQueryRequestExtend) request).getNestOrVariables();
+            if (nestOrVariables != null && nestOrVariables.size() > 0) {
+                nestOrVariables.forEach((oneOrVariables) -> {
+                    historicProcessInstanceQuery.or();
+                    addVariables(historicProcessInstanceQuery, oneOrVariables);
+                    historicProcessInstanceQuery.endOr();
+                });
+            }
         }
     }
 
